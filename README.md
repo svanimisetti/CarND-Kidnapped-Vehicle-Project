@@ -1,134 +1,190 @@
-# Overview
-This repository contains all the code needed to complete the final project for the Localization course in Udacity's Self-Driving Car Nanodegree.
+# 1. Term 2 Kidnapped Vehicle Project Report
 
-#### Submission
-All you will submit is your completed version of `particle_filter.cpp`, which is located in the `src` directory. You should probably do a `git pull` before submitting to verify that your project passes the most up-to-date version of the grading code (there are some parameters in `src/main.cpp` which govern the requirements on accuracy and run time.)
+The writeup briefly describes the implementation of the Particle Filter algorithm for the *Kidnapped Vehicle Project* code needed to complete the final project for the Localization course in Udacity's Self-Driving Car Nanodegree.
 
-## Project Introduction
-Your robot has been kidnapped and transported to a new location! Luckily it has a map of this location, a (noisy) GPS estimate of its initial location, and lots of (noisy) sensor and control data.
+<!-- TOC -->
 
-In this project you will implement a 2 dimensional particle filter in C++. Your particle filter will be given a map and some initial localization information (analogous to what a GPS would provide). At each time step your filter will also get observation and control data. 
+- [1. Term 2 Kidnapped Vehicle Project Report](#1-term-2-kidnapped-vehicle-project-report)
+    - [1. Configuration, Build and Run Process](#1-configuration-build-and-run-process)
+    - [2. Source Code Implementation](#2-source-code-implementation)
+        - [2.1. Overview of Steps for Particle Filter](#21-overview-of-steps-for-particle-filter)
+        - [2.2. Initialization](#22-initialization)
+        - [2.3. Prediction](#23-prediction)
+        - [2.4. Association](#24-association)
+        - [2.5. Update](#25-update)
+        - [2.6. Resample](#26-resample)
+    - [3. Results and Discussions](#3-results-and-discussions)
+        - [3.1. Submission](#31-submission)
 
-## Running the Code
-This project involves the Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases)
+<!-- /TOC -->
 
-This repository includes two files that can be used to set up and intall uWebSocketIO for either Linux or Mac systems. For windows you can use either Docker, VMware, or even Windows 10 Bash on Ubuntu to install uWebSocketIO.
+---
 
-Once the install for uWebSocketIO is complete, the main program can be built and ran by doing the following from the project top directory.
+## 1. Configuration, Build and Run Process
 
-mkdir build
-cd build
-cmake ..
-make
-./particle_filter
+* For this project, Windows 10 x64 WSL (Ubuntu 16.04) build environment was used. The core dependencies (cmake >=3.5, make >= 4.1, gcc/g++ >= 5.4) are already a part of this system.
+* [uWebSockets](https://github.com/uWebSockets/uWebSockets) was installed using `install-ubuntu.sh`.
+* [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page) was utilized for this code. Relevant source folder is included.
+* The term 2 simulator was downloaded from the [release](https://github.com/udacity/self-driving-car-sim/releases) section of the repository.
+* The build for MPC project was done  using command `mkdir build && cd build && cmake .. && make`. The exectuable was run using `./particle_filter`. The executable (server) waits for uWebSockets connection from Term 2 Simulation (client). Once connection is established, the executable recieves "telemetry" data from the client and sends back particle filter data for visualization of best and average particles.
 
-Note that the programs that need to be written to accomplish the project are src/particle_filter.cpp, and particle_filter.h
+## 2. Source Code Implementation
 
-The program main.cpp has already been filled out, but feel free to modify it.
+ The majority of the implementation was done in the `particle_filter.cpp` file. Other source files are tweaked slightly to improve compatibility with source implementation in the `particle_filter.cpp` file. In the following, key portions of the source code implemented in `particle_filter.cpp` file is discussed.
 
-Here is the main protcol that main.cpp uses for uWebSocketIO in communicating with the simulator.
+### 2.1. Overview of Steps for Particle Filter
 
-INPUT: values provided by the simulator to the c++ program
+The major implementation steps for particle filter algorithm are:
+ 1. Initialization
+ 2. Prediction
+ 3. Association
+ 4. Update
+ 5. Resample
 
-// sense noisy position data from the simulator
+### 2.2. Initialization
 
-["sense_x"] 
+Initialization is done between lines 26-52 of `particle_filter.cpp` file. Here, normal distribution generator is initialized using following code. It is noted here that the random number generator is initialized outside `for` loop using a zero mean and specified standard deviation to improve code efficiency.
 
-["sense_y"] 
-
-["sense_theta"] 
-
-// get the previous velocity and yaw rate to predict the particle's transitioned state
-
-["previous_velocity"]
-
-["previous_yawrate"]
-
-// receive noisy observation data from the simulator, in a respective list of x/y values
-
-["sense_observations_x"] 
-
-["sense_observations_y"] 
-
-
-OUTPUT: values provided by the c++ program to the simulator
-
-// best particle values used for calculating the error evaluation
-
-["best_particle_x"]
-
-["best_particle_y"]
-
-["best_particle_theta"] 
-
-//Optional message data used for debugging particle's sensing and associations
-
-// for respective (x,y) sensed positions ID label 
-
-["best_particle_associations"]
-
-// for respective (x,y) sensed positions
-
-["best_particle_sense_x"] <= list of sensed x positions
-
-["best_particle_sense_y"] <= list of sensed y positions
-
-
-Your job is to build out the methods in `particle_filter.cpp` until the simulator output says:
-
-```
-Success! Your particle filter passed!
+``` c++
+default_random_engine gen;
+normal_distribution<double> dist_x(0.0, std[0]);
+normal_distribution<double> dist_y(0.0, std[1]);
+normal_distribution<double> dist_theta(0.0, std[2]);
 ```
 
-# Implementing the Particle Filter
-The directory structure of this repository is as follows:
+Further, depending on number of particles defined, the particle vector is initialized.
 
-```
-root
-|   build.sh
-|   clean.sh
-|   CMakeLists.txt
-|   README.md
-|   run.sh
-|
-|___data
-|   |   
-|   |   map_data.txt
-|   
-|   
-|___src
-    |   helper_functions.h
-    |   main.cpp
-    |   map.h
-    |   particle_filter.cpp
-    |   particle_filter.h
+``` c++
+particles.clear();
+for (int i = 0; i < num_particles; i++) {
+    Particle p;
+    p.id = i;
+    p.x = x + dist_x(gen);
+    p.y = y + dist_y(gen);
+    p.theta = theta + dist_theta(gen);
+    p.weight = 1.0;
+    particles.push_back(p);
+    weights.push_back(1.0);
+}
 ```
 
-The only file you should modify is `particle_filter.cpp` in the `src` directory. The file contains the scaffolding of a `ParticleFilter` class and some associated methods. Read through the code, the comments, and the header file `particle_filter.h` to get a sense for what this code is expected to do.
+### 2.3. Prediction
 
-If you are interested, take a look at `src/main.cpp` as well. This file contains the code that will actually be running your particle filter and calling the associated methods.
+In the prediction step, all the particles are update using the motion model and the sensor data (velocity and yaw rate). Furthermore, the equations of motion model used for prediction are change depending on the current yaw rate.
 
-## Inputs to the Particle Filter
-You can find the inputs to the particle filter in the `data` directory. 
+``` c++
+for (int i = 0; i < num_particles; i++) {
+    // Update based on motion model
+    if(thetad<0.001) {
+        particles[i].x += dist_x(gen) + v*dt*cos(particles[i].theta);
+        particles[i].y += dist_y(gen) + v*dt*sin(particles[i].theta);
+    } else {
+        particles[i].x += dist_x(gen)
+            + (v/thetad)*(sin(particles[i].theta+thetad*dt)
+                            -sin(particles[i].theta));
+        particles[i].y += dist_y(gen)
+            + (v/thetad)*(cos(particles[i].theta)
+                            -cos(particles[i].theta+thetad*dt));
+    }
+    particles[i].theta += dist_theta(gen) + thetad*dt;
+}
+```
 
-#### The Map*
-`map_data.txt` includes the position of landmarks (in meters) on an arbitrary Cartesian coordinate system. Each row has three columns
-1. x position
-2. y position
-3. landmark id
+### 2.4. Association
 
-### All other data the simulator provides, such as observations and controls.
+The observations predicted by each particle are transformed to global frame and stored in `LandmarkObs` vector.
 
-> * Map data provided by 3D Mapping Solutions GmbH.
+``` c++
+predicted_vec.clear();
+for(int j=0; j<obs_lm.size(); j++) {
+    LandmarkObs pred_temp;
+    ptx_vec << particles[i].x, particles[i].y;
+    obs_vec << obs_lm[j].x, obs_lm[j].y;
+    glb_vec = rot_L2G*obs_vec + ptx_vec;
+    pred_temp.id = -1;
+    pred_temp.x = glb_vec[0];
+    pred_temp.y = glb_vec[1];
+    predicted_vec.push_back(pred_temp);
+}
+```
 
-## Success Criteria
-If your particle filter passes the current grading code in the simulator (you can make sure you have the current version at any time by doing a `git pull`), then you should pass! 
+Similarly, the ground truth landmark positions obtained from the simulator are also processed and only those within sensor range are stored in a vector.
 
-The things the grading code is looking for are:
+``` c++
+observations_vec.clear();
+for(int k=0; k<lm_list.size(); k++) {
+    d_range = dist(particles[i].x, particles[i].y,
+                    lm_list[k].x_f, lm_list[k].y_f);
+    if(d_range <= sensor_range) {
+        LandmarkObs obs_temp;
+        obs_temp.id = lm_list[k].id_i;
+        obs_temp.x = lm_list[k].x_f;
+        obs_temp.y = lm_list[k].y_f;
+        observations_vec.push_back(obs_temp);
+    }
+}
+```
 
+These two vectors (`predicted_vec` and `observation_vec`) are then associated. For each particle, the observation is associated to closest ground truth landmark. This information will be used during the update process.
 
-1. **Accuracy**: your particle filter should localize vehicle position and yaw to within the values specified in the parameters `max_translation_error` and `max_yaw_error` in `src/main.cpp`.
+### 2.5. Update
 
-2. **Performance**: your particle filter should complete execution within the time of 100 seconds.
+The update is performed for each particle by looping over the predictions and ground truth observation and obtaining overall probability of all landmarks being sensed. A simplified implementation of multi-variate Gaussian was utilized to compute the probability of match between prediction and ground truth observation.
 
+``` c++
+p_weight = 1.0;
+double num, den;
+for(int j=0; j<predicted_vec.size(); j++) {
+    for(int k=0; k<observations_vec.size(); k++) {
+        if(predicted_vec[j].id != observations_vec[k].id) continue;
+        // Simple implementation assuming no cross-correlation
+        num = pow((predicted_vec[j].x-observations_vec[k].x),2)
+                / (2.0*pow(std_lm[0],2))
+            + pow((predicted_vec[j].y-observations_vec[k].y),2)
+                / (2.0*pow(std_lm[1],2));
+        double den = (2.0*M_PI*std_lm[0]*std_lm[1]);
+        p_weight *= exp(-num/den);
+    }
+}
+particles[i].weight = p_weight;
+weights.push_back(p_weight);
+w_sum += p_weight;
+```
 
+Note that the summation `W_sum` is used again to normalize the `weights` vector. This is done to ensure that the particle weights sum to 1.0, and this will be useful during the resampling step when using `discrete_distribution`.
+
+The general case of estimating particle weights during the update step using the multi-variate Gaussian distribution is as follows. Note, that the covariance of sensor measurements has zero off-diagonals in the vehicle frame. However, if the probability is being assessed in the global frame, the covariance matrix will have to be transformed. In this case, it is not guaranteed that the off-diagonal terms will be zeros. The following image gives an overview of how a generalized implementation of MVGP estimation can be implemented. The `particle_filter.cpp` file has this implementation in comments.
+
+![Generalized MVG Probability](./gmvgp_implementation.PNG)
+
+### 2.6. Resample
+
+The resampling step is simple to implement, yet a critical one. The normalized weights obtained from the udpate step are used to draw discrete particles with equivalent normal distribution. The new particles are drawn from the current pool of particles which closely represent the ground truth measurements.
+
+```c++
+discrete_distribution<int> dist(weights.begin(), weights.end());
+std::vector<Particle> new_particles;
+new_particles.clear();
+for (int i = 0; i < num_particles; i++) {
+    new_particles.push_back(particles[dist(gen)]);
+}
+```
+
+## 3. Results and Discussions
+
+The implementation of the particle filter for *Kidnapped Vehicle* project was successfully completed. A screen grab of the completed project being run in the simulator is shown below. A screencast of the simulator in action can be seen [here](./PF_Output_N100.mp4).
+
+![Successful Completion](./Errors_NParticles_100.PNG)
+
+The effect of choice of number of particles on the performance and run-time was also investigated. The results are shown below. It is interesting to see that the accuracy (*Position Error*) of the filter saturates above 100-200 particles. There is no performance gain in choosing more than 200 particles as the run-time is severely compromised. Although the code can be optimized further to get more efficiency, for this project no further code optimization or profiling was attempted. It is noted that for ~1000 particles, the simulator timed-out.
+
+![Number of Particles](./optimal_num_particles.png)
+
+The following performance was obtained from the particle filter.
+
+1. **Accuracy**: Particle filter is able localize vehicle position and yaw to within errors 0.15 and 0.004, respectively.
+
+2. **Performance**: For choice of 100 particles, the simulator completed in 30 seconds. However, there is a steep increase in run-time above 200 particles.
+
+### 3.1. Submission
+The complete source code (additional files supporting `particle_filter.cpp`) is uploaded as a zip file. Some of the files in addition to `particle_filter.cpp` have been modified and the `Eigen` library is also included in the zip file. Therefore, the reviewer is requested to extract all source files to `src` directory before compiling the project. The setup is compatible with `cmake` and `make`.
