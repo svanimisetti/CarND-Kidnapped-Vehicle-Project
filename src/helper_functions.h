@@ -19,8 +19,8 @@
  */
 struct control_s {
 	
-	double velocity;	// Velocity [m/s]
-	double yawrate;		// Yaw rate [rad/s]
+	double velocity; // Velocity [m/s]
+	double yawrate;	 // Yaw rate [rad/s]
 };
 
 /*
@@ -28,9 +28,9 @@ struct control_s {
  */
 struct ground_truth {
 	
-	double x;		// Global vehicle x position [m]
-	double y;		// Global vehicle y position
-	double theta;	// Global vehicle yaw [rad]
+	double x;		 // Global vehicle x position [m]
+	double y;		 // Global vehicle y position
+	double theta;	 // Global vehicle yaw [rad]
 };
 
 /*
@@ -38,9 +38,9 @@ struct ground_truth {
  */
 struct LandmarkObs {
 	
-	int id;				// Id of matching landmark in the map.
-	double x;			// Local (vehicle coordinates) x position of landmark observation [m]
-	double y;			// Local (vehicle coordinates) y position of landmark observation [m]
+	int id;			 // Id of matching landmark in the map.
+	double x;		 // Local x position of landmark observation [m]
+	double y;		 // Local y position of landmark observation [m]
 };
 
 /*
