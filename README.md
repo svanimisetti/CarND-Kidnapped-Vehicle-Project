@@ -4,17 +4,16 @@ The writeup briefly describes the implementation of the Particle Filter algorith
 
 <!-- TOC -->
 
-- [1. Term 2 Kidnapped Vehicle Project Report](#1-term-2-kidnapped-vehicle-project-report)
-    - [1. Configuration, Build and Run Process](#1-configuration-build-and-run-process)
-    - [2. Source Code Implementation](#2-source-code-implementation)
-        - [2.1. Overview of Steps for Particle Filter](#21-overview-of-steps-for-particle-filter)
-        - [2.2. Initialization](#22-initialization)
-        - [2.3. Prediction](#23-prediction)
-        - [2.4. Association](#24-association)
-        - [2.5. Update](#25-update)
-        - [2.6. Resample](#26-resample)
-    - [3. Results and Discussions](#3-results-and-discussions)
-        - [3.1. Submission](#31-submission)
+- [1. Configuration, Build and Run Process](#1-configuration-build-and-run-process)
+- [2. Source Code Implementation](#2-source-code-implementation)
+    - [2.1. Overview of Steps for Particle Filter](#21-overview-of-steps-for-particle-filter)
+    - [2.2. Initialization](#22-initialization)
+    - [2.3. Prediction](#23-prediction)
+    - [2.4. Association](#24-association)
+    - [2.5. Update](#25-update)
+    - [2.6. Resample](#26-resample)
+- [3. Results and Discussions](#3-results-and-discussions)
+    - [3.1. Submission](#31-submission)
 
 <!-- /TOC -->
 
