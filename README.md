@@ -4,16 +4,17 @@ The writeup briefly describes the implementation of the Particle Filter algorith
 
 <!-- TOC -->
 
-- [1. Configuration, Build and Run Process](#1-configuration-build-and-run-process)
-- [2. Source Code Implementation](#2-source-code-implementation)
-    - [2.1. Overview of Steps for Particle Filter](#21-overview-of-steps-for-particle-filter)
-    - [2.2. Initialization](#22-initialization)
-    - [2.3. Prediction](#23-prediction)
-    - [2.4. Association](#24-association)
-    - [2.5. Update](#25-update)
-    - [2.6. Resample](#26-resample)
-- [3. Results and Discussions](#3-results-and-discussions)
-    - [3.1. Submission](#31-submission)
+- [1. Term 2 Kidnapped Vehicle Project Report](#1-term-2-kidnapped-vehicle-project-report)
+    - [1. Configuration, Build and Run Process](#1-configuration-build-and-run-process)
+    - [2. Source Code Implementation](#2-source-code-implementation)
+        - [2.1. Overview of Steps for Particle Filter](#21-overview-of-steps-for-particle-filter)
+        - [2.2. Initialization](#22-initialization)
+        - [2.3. Prediction](#23-prediction)
+        - [2.4. Association](#24-association)
+        - [2.5. Update](#25-update)
+        - [2.6. Resample](#26-resample)
+    - [3. Results and Discussions](#3-results-and-discussions)
+        - [3.1. Submission](#31-submission)
 
 <!-- /TOC -->
 
@@ -186,4 +187,4 @@ The following performance was obtained from the particle filter.
 2. **Performance**: For choice of 100 particles, the simulator completed in 30 seconds. However, there is a steep increase in run-time above 200 particles.
 
 ### 3.1. Submission
-The complete source code (additional files supporting `particle_filter.cpp`) is uploaded as a zip file. Some of the files in addition to `particle_filter.cpp` have been modified and the `Eigen` library is also included in the zip file. Therefore, the reviewer is requested to extract all source files to `src` directory before compiling the project. The setup is compatible with `cmake` and `make`.
+The source code (`particle_filter.cpp`) is uploaded as a zip file. The file is a drop-in replacement into the reviewer's reposity and is compatible with `cmake` and `make`. Please see [GitHub repository](https://github.com/svanimisetti/CarND-Kidnapped-Vehicle-Project) for the project report in README.md.
