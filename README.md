@@ -97,12 +97,11 @@ The observations predicted by each particle are transformed to global frame and 
 predicted_vec.clear();
 for(int j=0; j<obs_lm.size(); j++) {
     LandmarkObs pred_temp;
-    ptx_vec << particles[i].x, particles[i].y;
-    obs_vec << obs_lm[j].x, obs_lm[j].y;
-    glb_vec = rot_L2G*obs_vec + ptx_vec;
     pred_temp.id = -1;
-    pred_temp.x = glb_vec[0];
-    pred_temp.y = glb_vec[1];
+    pred_temp.x = obs_lm[j].x*cos_theta - obs_lm[j].y*sin_theta
+			            + particles[i].x;
+    pred_temp.y = obs_lm[j].x*sin_theta + obs_lm[j].y*cos_theta
+                + particles[i].y;
     predicted_vec.push_back(pred_temp);
 }
 ```
